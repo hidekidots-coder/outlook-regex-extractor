@@ -1,0 +1,119 @@
+Sub ExtrairAWBs_ComData()
+
+    Dim OutlookApp As Object
+    Dim OutlookNamespace As Object
+    Dim PastaRaiz As Object
+    Dim PastaDHL As Object
+    Dim Pasta1 As Object
+    Dim Pasta2 As Object
+    Dim Email As Object
+    Dim Anexo As Object
+    Dim RegEx As Object
+    Dim Matches As Object
+    Dim Match As Object
+    Dim Linha As Long
+    Dim TextoCompleto As String
+    Dim DataInicial As Date
+    
+    Dim CaminhoDownload As String
+    
+  
+    DataInicial = DateValue("15/08/2026")
+   
+    CaminhoDownload = "C:\Users\Downloads\hawb\"
+    
+    If Dir(CaminhoDownload, vbDirectory) = "" Then
+        MkDir CaminhoDownload
+    End If
+    
+    Columns("A:A").Clear
+    
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookNamespace = OutlookApp.GetNamespace("MAPI")
+    
+    Set PastaRaiz = OutlookNamespace.Folders("gabriel.yoshimura")
+    Set PastaDHL = BuscarPasta(PastaRaiz, "dhl")
+    
+    Set Pasta1 = BuscarPasta(PastaDHL, "notificação de embarque")
+    Set Pasta2 = BuscarPasta(PastaDHL, "pre alerta carga")
+  
+    Set RegEx = CreateObject("VBScript.RegExp")
+    RegEx.Pattern = "\bH?AWB[\s:]*""?((\d{10})|(\d{3}-\d{8}))"
+    RegEx.Global = True
+    RegEx.IgnoreCase = True
+    
+    Linha = 1
+  
+    If Not Pasta1 Is Nothing Then
+        For Each Email In Pasta1.Items
+            If Email.Class = 43 Then
+                If Email.ReceivedTime >= DataInicial Then
+                    
+                    TextoCompleto = Email.Subject & " " & Email.Body & " " & Email.HTMLBody
+                    
+                    
+                    If Email.Attachments.Count > 0 Then
+                        For Each Anexo In Email.Attachments
+                            Anexo.SaveAsFile CaminhoDownload & Anexo.Filename
+                        Next Anexo
+                    End If
+                    
+                    If RegEx.Test(TextoCompleto) Then
+                        Set Matches = RegEx.Execute(TextoCompleto)
+                        For Each Match In Matches
+                            Cells(Linha, 1).Value = Match.SubMatches(0)
+                            Linha = Linha + 1
+                        Next Match
+                    End If
+                    
+                End If
+            End If
+        Next Email
+    End If
+    
+   
+    If Not Pasta2 Is Nothing Then
+        For Each Email In Pasta2.Items
+            If Email.Class = 43 Then
+                If Email.ReceivedTime >= DataInicial Then
+                    
+                    TextoCompleto = Email.Subject & " " & Email.Body & " " & Email.HTMLBody
+                    
+                  
+                    If Email.Attachments.Count > 0 Then
+                        For Each Anexo In Email.Attachments
+                            Anexo.SaveAsFile CaminhoDownload & Anexo.Filename
+                        Next Anexo
+                    End If
+                    
+                    
+                    If RegEx.Test(TextoCompleto) Then
+                        Set Matches = RegEx.Execute(TextoCompleto)
+                        For Each Match In Matches
+                            Cells(Linha, 1).Value = Match.SubMatches(0)
+                            Linha = Linha + 1
+                        Next Match
+                    End If
+                    
+                End If
+            End If
+        Next Email
+    End If
+    
+    MsgBox "HAWB/AWB extraídos e anexos baixados com sucesso!"
+
+End Sub
+
+
+Function BuscarPasta(PastaPai As Object, NomeProcurado As String) As Object
+    
+    Dim SubPasta As Object
+    
+    For Each SubPasta In PastaPai.Folders
+        If LCase(Trim(SubPasta.Name)) = LCase(Trim(NomeProcurado)) Then
+            Set BuscarPasta = SubPasta
+            Exit Function
+        End If
+    Next SubPasta
+    
+End Function
