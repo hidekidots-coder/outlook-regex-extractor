@@ -1,17 +1,50 @@
-# outlook-regex-extractor
-# Outlook AWB Extractor
+# Outlook Logistics Document Extractor
 
-Automation developed in VBA for Outlook.
+VBA automation for extracting AWB and HAWB references from
+Microsoft Outlook emails and organizing the extracted information
+in Excel.
 
-## Features
-- Reads Outlook folders
-- Downloads attachments automatically
-- Searches email body, subject and HTML content
-- Extracts AWB/HAWB references using Regular Expressions
-- Stores results in Excel
-  
-## Supported Formats
-- AWB 1077013486
-- HAWB 1077013486
-- AWB: 1077013486
-- AWB 123-12345678
+## Overview
+
+This project automates part of a logistics document processing
+workflow using Microsoft Outlook, VBA and Regular Expressions.
+
+The automation searches Outlook emails, analyzes the email subject
+and HTML content, identifies AWB and HAWB references, downloads
+attachments and stores the extracted information in Excel.
+
+## Problem
+
+Logistics and import/export operations often require users to
+manually search through emails, identify shipment references,
+download attachments and organize information.
+
+This process can be repetitive and time-consuming.
+
+## Solution
+
+This project automates the extraction and organization of
+logistics references from Outlook emails.
+
+### Workflow
+
+```text
+Microsoft Outlook
+        │
+        ▼
+   Email Search
+        │
+        ▼
+Subject / HTML Body
+        │
+        ▼
+Regular Expressions
+        │
+        ▼
+AWB / HAWB Extraction
+        │
+        ▼
+Attachment Download
+        │
+        ▼
+      Excel
